@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrips Nucleotide Database</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Lucide Icons as SVG components
+        const Search = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        );
+
+        const CheckSquare = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+        );
+
+        const Square = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            </svg>
+        );
+
+        const Eye = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+        );
+
+        const Dna = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 15c6.667-6 13.333 0 20-6"></path>
+                <path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"></path>
+                <path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"></path>
+                <path d="m17 6-2.5-2.5"></path>
+                <path d="m14 8-1-1"></path>
+                <path d="m7 18 2.5 2.5"></path>
+                <path d="m3.5 14.5.5.5"></path>
+                <path d="m20 9 .5.5"></path>
+                <path d="m6.5 12.5 1 1"></path>
+                <path d="m16.5 10.5 1 1"></path>
+                <path d="m10 16 1.5 1.5"></path>
+            </svg>
+        );
+
+        const FlaskConical = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"></path>
+                <path d="M8.5 2h7"></path>
+                <path d="M7 16h10"></path>
+            </svg>
+        );
+
+        const Download = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        );
+
+        // Sample Thrips database entries
+        const SAMPLE_THRIPS_DATA = [
+            {
+                id: 1,
+                accession: "MK542361",
+                species: "Thrips tabaci",
+                common_name: "Onion thrips",
+                gene: "COI",
+                length: 658,
+                country: "India",
+                sequence: "ATGATATTCTTTATTTGTATGATCCGTAATAATTGGAGGTTTTGGAAATTGATTAATTCCTTTAATATTAGGAGCCCCCGATATAGCATTCCCTCGAATAAATAATATAAGTTTTTGATTATTACCTCCTTCTTTAACCCTTCTTCTTGCCTCTTCAGGAGTAGAAGCTGGAGCTGGAACAGGATGAACTGTTTATCCCCCTTTATCTGCTAATATTGCTCATGGAGGAGCTTCAGTTGACCTTGCTATTTTTTCTCTTCATTTAGCAGGAATTTCTTCTATTTTAGGAGCTATTAATTTTATTTCAACAATTATTAATATACGAGCTCCCGGAATTACATTTGATCGTATACCTTTATTTGTATGATCAGTAGTAATTACAGCTTTATTATTACTTCTTTCTTTACCTGTATTAGCCGGAGCTATTACTATATTATTAACAGATCGAAATTTAAATACATCTTTTTTTGACCCTGCAGGAGGAGGAGACCCTATTTTATACCAACATTTATTT",
+                collector: "Kumar R",
+                collection_date: "2018-05-12"
+            },
+            {
+                id: 2,
+                accession: "KT175592",
+                species: "Thrips palmi",
+                common_name: "Melon thrips",
+                gene: "COI",
+                length: 651,
+                country: "Indonesia",
+                sequence: "ATGATATTCTTTATTTGTATGATCCGTAATAATTGGAGGTTTTGGAAATTGATTAATTCCTTTAATATTAGGAGCCCCCGATATAGCATTCCCTCGAATAAATAATATAAGTTTTTGATTATTACCTCCTTCTTTAACCCTTCTTCTTGCCTCTTCAGGAGTAGAAGCTGGAGCTGGAACAGGATGAACTGTTTATCCCCCTTTATCTGCTAATATTGCTCATGGAGGAGCTTCAGTTGACCTTGCTATTTTTTCTCTTCATTTAGCAGGAATTTCTTCTATTTTAGGAGCTATTAATTTTATTTCAACAATTATTAATATACGAGCTCCCGGAATTACATTTGATCGTATACCTTTATTTGTATGATCAGTAGTAATTACAGCTTTATTATTACTTCTTTCTTTACCTGTATTAGCCGGAGCTATTACTATATTATTAACAGATCGAAATTTAAATACATCTTTTTTTGACCCTGCAGGAGGAGGAGACCCTATTTTATACCAACATTTAT",
+                collector: "Zhang L",
+                collection_date: "2015-08-20"
+            },
+            {
+                id: 3,
+                accession: "LC193847",
+                species: "Frankliniella occidentalis",
+                common_name: "Western flower thrips",
+                gene: "COI",
+                length: 657,
+                country: "Japan",
+                sequence: "ATGATATTCTTTATTTGTATGATCCGTAATAATTGGAGGTTTTGGAAATTGATTAATTCCTTTAATATTAGGAGCCCCCGATATAGCATTCCCTCGAATAAATAATATAAGTTTTTGATTATTACCTCCTTCTTTAACCCTTCTTCTTGCCTCTTCAGGAGTAGAAGCTGGAGCTGGAGCAGGATGAACTGTTTATCCCCCTTTATCTGCTAATATTGCTCATGGAGGAGCTTCAGTTGACCTTGCTATTTTTTCTCTTCATTTAGCAGGAATTTCTTCTATTTTAGGAGCTATTAATTTTATTTCAACAATTATTAATATACGAGCTCCCGGAATTACATTTGATCGTATACCTTTATTTGTATGATCAGTAGTAATTACAGCTTTATTATTACTTCTTTCTTTACCTGTATTAGCCGGAGCTATTACTATATTATTAACAGATCGAAATTTAAATACATCTTTTTTTGACCCTGCAGGAGGAGGAGACCCTATTTTATACCAACATTTA",
+                collector: "Tanaka M",
+                collection_date: "2016-03-15"
+            },
+            {
+                id: 4,
+                accession: "MH123456",
+                species: "Scirtothrips dorsalis",
+                common_name: "Chilli thrips",
+                gene: "COI",
+                length: 655,
+                country: "Thailand",
+                sequence: "ATGATATTCTTTATTTGTATGATCCGTAATAATTGGAGGTTTTGGAAATTGATTAATTCCTTTAATATTAGGAGCCCCCGATATAGCATTCCCTCGAATAAATAATATAAGTTTTTGATTATTACCTCCTTCTTTAACCCTTCTTCTTGCCTCTTCAGGAGTAGAAGCTGGAGCTGGAACAGGATGAACTGTTTATCCCCCTTTATCTGCTAATATTGCTCATGGAGGAGCTTCAGTTGACCTTGCTATTTTTTCTCTTCATTTAGCAGGAATTTCTTCTATTTTAGGAGCTATTAATTTTATTTCAACAATTATTAATATACGAGCTCCCGGAATTACATTTGATCGTATACCTTTATTTGTATGATCAGTAGTAATTACAGCTTTATTATTACTTCTTTCTTTACCTGTATTAGCCGGAGCTATTACTATATTATTAACAGATCGAAATTTAAATACATCTTTTTTTGACCCTGCAGGAGGAGGAGACCCTATTTTATACCAACATTT",
+                collector: "Singh P",
+                collection_date: "2019-11-08"
+            },
+            {
+                id: 5,
+                accession: "KX987654",
+                species: "Thrips hawaiiensis",
+                common_name: "Hawaiian flower thrips",
+                gene: "COI",
+                length: 652,
+                country: "USA",
+                sequence: "ATGATATTCTTTATTTGTATGATCCGTAATAATTGGAGGTTTTGGAAATTGATTAATTCCTTTAATATTAGGAGCCCCCGATATAGCATTCCCTCGAATAAATAATATAAGTTTTTGATTATTACCTCCTTCTTTAACCCTTCTTCTTGCCTCTTCAGGAGTAGAAGCTGGAGCTGGAACAGGATGAACTGTTTATCCCCCTTTATCTGCTAATATTGCTCATGGAGGAGCTTCAGTTGACCTTGCTATTTTTTCTCTTCATTTAGCAGGAATTTCTTCTATTTTAGGAGCTATTAATTTTATTTCAACAATTATTAATATACGAGCTCCCGGAATTACATTTGATCGTATACCTTTATTTGTATGATCAGTAGTAATTACAGCTTTATTATTACTTCTTTCTTTACCTGTATTAGCCGGAGCTATTACTATATTATTAACAGATCGAAATTTAAATACATCTTTTTTTGACCCTGCAGGAGGAGGAGACCCTATTTT",
+                collector: "Williams J",
+                collection_date: "2017-06-22"
+            },
+            {
+                id: 6,
+                accession: "LC456789",
+                species: "Thrips florum",
+                common_name: "Flower thrips",
+                gene: "COI",
+                length: 653,
+                country: "Brazil",
+                sequence: "ATGATATTCTTTATTTGTATGATCCGTAATAATTGGAGGTTTTGGAAATTGATTAATTCCTTTAATATTAGGAGCCCCCGATATAGCATTCCCTCGAATAAATAATATAAGTTTTTGATTATTACCTCCTTCTTTAACCCTTCTTCTTGCCTCTTCAGGAGTAGAAGCTGGAGCTGGAACAGGATGAACTGTTTATCCCCCTTTATCTGCTAATATTGCTCATGGAGGAGCTTCAGTTGACCTTGCTATTTTTTCTCTTCATTTAGCAGGAATTTCTTCTATTTTAGGAGCTATTAATTTTATTTCAACAATTATTAATATACGAGCTCCCGGAATTACATTTGATCGTATACCTTTATTTGTATGATCAGTAGTAATTACAGCTTTATTATTACTTCTTTCTTTACCTGTATTAGCCGGAGCTATTACTATATTATTAACAGATCGAAATTTAAATACATCTTTTTTTGACCCTGCAGGAGGAGGAGACCCTATTTTA",
+                collector: "Silva M",
+                collection_date: "2020-02-18"
+            }
+        ];
+
+        const calculateSimilarity = (seq1, seq2) => {
+            const minLen = Math.min(seq1.length, seq2.length);
+            let matches = 0;
+            for (let i = 0; i < minLen; i++) {
+                if (seq1[i] === seq2[i]) matches++;
+            }
+            return ((matches / minLen) * 100).toFixed(2);
+        };
+
+        const ThripsDatabase = () => {
+            const [entries] = useState(SAMPLE_THRIPS_DATA);
+            const [filteredEntries, setFilteredEntries] = useState(SAMPLE_THRIPS_DATA);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [selectedSequences, setSelectedSequences] = useState([]);
+            const [blastResults, setBlastResults] = useState(null);
+            const [viewSequence, setViewSequence] = useState(null);
+            const [sortBy, setSortBy] = useState('species');
+
+            useEffect(() => {
+                const filtered = entries.filter(entry => 
+                    entry.species.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    entry.common_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    entry.accession.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    entry.country.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                const sorted = [...filtered].sort((a, b) => {
+                    if (sortBy === 'species') return a.species.localeCompare(b.species);
+                    if (sortBy === 'accession') return a.accession.localeCompare(b.accession);
+                    if (sortBy === 'length') return b.length - a.length;
+                    return 0;
+                });
+                
+                setFilteredEntries(sorted);
+            }, [searchTerm, entries, sortBy]);
+
+            const toggleSequenceSelection = (entry) => {
+                if (selectedSequences.find(s => s.id === entry.id)) {
+                    setSelectedSequences(selectedSequences.filter(s => s.id !== entry.id));
+                } else {
+                    setSelectedSequences([...selectedSequences, entry]);
+                }
+            };
+
+            const selectAll = () => {
+                if (selectedSequences.length === filteredEntries.length) {
+                    setSelectedSequences([]);
+                } else {
+                    setSelectedSequences([...filteredEntries]);
+                }
+            };
+
+            const openSelectedSequences = () => {
+                if (selectedSequences.length === 0) {
+                    alert('Please select at least one sequence');
+                    return;
+                }
+                setViewSequence(selectedSequences);
+            };
+
+            const runBlast = () => {
+                if (selectedSequences.length === 0) {
+                    alert('Please select sequences to run BLAST');
+                    return;
+                }
+
+                const query = selectedSequences[0].sequence;
+                
+                const results = entries.map(entry => ({
+                    ...entry,
+                    similarity: parseFloat(calculateSimilarity(query, entry.sequence)),
+                    alignmentLength: Math.min(query.length, entry.sequence.length),
+                    identities: Math.floor((calculateSimilarity(query, entry.sequence) / 100) * Math.min(query.length, entry.sequence.length)),
+                    gaps: Math.abs(query.length - entry.sequence.length)
+                })).sort((a, b) => b.similarity - a.similarity);
+
+                setBlastResults({ query, queryEntry: selectedSequences[0], results });
+            };
+
+            const exportFasta = (sequences) => {
+                const fasta = sequences.map(seq => 
+                    `>${seq.accession} ${seq.species}\n${seq.sequence}`
+                ).join('\n\n');
+                
+                const blob = new Blob([fasta], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'thrips_sequences.fasta';
+                a.click();
+            };
+
+            const clearSelection = () => {
+                setSelectedSequences([]);
+                setBlastResults(null);
+                setViewSequence(null);
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    <div className="bg-white shadow-sm border-b">
+                        <div className="max-w-7xl mx-auto px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="bg-green-600 p-2 rounded-lg">
+                                        <Dna />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900">Thrips Nucleotide Database</h1>
+                                        <p className="text-sm text-gray-500">COI Gene Barcode Repository (~650bp)</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-2xl font-bold text-gray-900">{entries.length}</div>
+                                    <div className="text-xs text-gray-500">Total Entries</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="max-w-7xl mx-auto px-6 py-6">
+                        <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
+                            <div className="flex flex-col lg:flex-row gap-4">
+                                <div className="flex-1">
+                                    <div className="relative">
+                                        <div className="absolute left-3 top-3 w-5 h-5 text-gray-400">
+                                            <Search />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Search by species, accession, country..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50"
+                                >
+                                    <option value="species">Sort by Species</option>
+                                    <option value="accession">Sort by Accession</option>
+                                    <option value="length">Sort by Length</option>
+                                </select>
+                            </div>
+
+                            {selectedSequences.length > 0 && (
+                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-5 h-5 text-blue-600">
+                                            <CheckSquare />
+                                        </div>
+                                        <span className="text-sm font-medium text-blue-900">
+                                            {selectedSequences.length} sequence{selectedSequences.length > 1 ? 's' : ''} selected
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            onClick={openSelectedSequences}
+                                            className="px-3 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 flex items-center space-x-2 text-sm font-medium"
+                                        >
+                                            <div className="w-4 h-4">
+                                                <Eye />
+                                            </div>
+                                            <span>View</span>
+                                        </button>
+                                        <button
+                                            onClick={runBlast}
+                                            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2 text-sm font-medium"
+                                        >
+                                            <div className="w-4 h-4">
+                                                <FlaskConical />
+                                            </div>
+                                            <span>BLAST</span>
+                                        </button>
+                                        <button
+                                            onClick={() => exportFasta(selectedSequences)}
+                                            className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center space-x-2 text-sm font-medium"
+                                        >
+                                            <div className="w-4 h-4">
+                                                <Download />
+                                            </div>
+                                            <span>FASTA</span>
+                                        </button>
+                                        <button
+                                            onClick={clearSelection}
+                                            className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {!viewSequence && !blastResults && (
+                            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50 border-b">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left">
+                                                    <button
+                                                        onClick={selectAll}
+                                                        className="flex items-center space-x-2 hover:text-green-600"
+                                                    >
+                                                        <div className="w-5 h-5">
+                                                            {selectedSequences.length === filteredEntries.length ? <CheckSquare /> : <Square />}
+                                                        </div>
+                                                        <span className="text-xs font-medium text-gray-500">ALL</span>
+                                                    </button>
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Accession</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Species</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Common Name</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Length</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200">
+                                            {filteredEntries.map(entry => (
+                                                <tr
+                                                    key={entry.id}
+                                                    className={`hover:bg-gray-50 transition-colors ${
+                                                        selectedSequences.find(s => s.id === entry.id) ? 'bg-blue-50' : ''
+                                                    }`}
+                                                >
+                                                    <td className="px-6 py-4">
+                                                        <button
+                                                            onClick={() => toggleSequenceSelection(entry)}
+                                                            className="hover:scale-110 transition-transform"
+                                                        >
+                                                            <div className="w-5 h-5">
+                                                                {selectedSequences.find(s => s.id === entry.id) ? <CheckSquare /> : <Square />}
+                                                            </div>
+                                                        </button>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm font-mono text-blue-600">{entry.accession}</td>
+                                                    <td className="px-6 py-4 text-sm font-medium text-gray-900 italic">{entry.species}</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600">{entry.common_name}</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-900">{entry.length} bp</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600">{entry.country}</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-500">{entry.collection_date}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {viewSequence && !blastResults && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-bold text-gray-900">Selected Sequences</h2>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={runBlast}
+                                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
+                                        >
+                                            <div className="w-5 h-5">
+                                                <FlaskConical />
+                                            </div>
+                                            <span>Run BLAST</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setViewSequence(null)}
+                                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                                        >
+                                            Back to Database
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {viewSequence.map((entry, idx) => (
+                                    <div key={entry.id} className="bg-white rounded-lg shadow-sm border p-6">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div>
+                                                <div className="flex items-center space-x-3 mb-2">
+                                                    <span className="text-lg font-bold text-gray-700">#{idx + 1}</span>
+                                                    <h3 className="text-xl font-bold text-gray-900 italic">{entry.species}</h3>
+                                                </div>
+                                                <p className="text-gray-600">{entry.common_name}</p>
+                                            </div>
+                                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                                {entry.gene}
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                                            <div>
+                                                <div className="text-gray-500 mb-1">Accession</div>
+                                                <div className="font-mono font-medium text-blue-600">{entry.accession}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-gray-500 mb-1">Length</div>
+                                                <div className="font-medium">{entry.length} bp</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-gray-500 mb-1">Country</div>
+                                                <div className="font-medium">{entry.country}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-gray-500 mb-1">Collection Date</div>
+                                                <div className="font-medium">{entry.collection_date}</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t pt-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h4 className="text-sm font-semibold text-gray-700">COI Nucleotide Sequence</h4>
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(entry.sequence);
+                                                        alert('Sequence copied!');
+                                                    }}
+                                                    className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md"
+                                                >
+</button>
+                                            </div>
+                                            <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
+                                                <pre className="text-xs font-mono text-green-400 whitespace-pre-wrap break-all">
+                                                    {entry.sequence}
+                                                </pre>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 pt-4 border-t text-xs text-gray-500">
+                                            <p><strong>Collector:</strong> {entry.collector}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {blastResults && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-bold text-gray-900">BLAST Results</h2>
+                                        <p className="text-sm text-gray-600">Query: {blastResults.queryEntry.species} ({blastResults.query.length} bp)</p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                const dataStr = JSON.stringify(blastResults.results, null, 2);
+                                                const blob = new Blob([dataStr], { type: 'application/json' });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement('a');
+                                                a.href = url;
+                                                a.download = 'blast_results.json';
+                                                a.click();
+                                            }}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+                                        >
+                                            <div className="w-5 h-5">
+                                                <Download />
+                                            </div>
+                                            <span>Export</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setBlastResults(null)}
+                                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                                        >
+                                            Back
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-lg shadow-sm border">
+                                    <div className="p-4 bg-gray-50 border-b">
+                                        <h3 className="font-semibold text-gray-900">Top 20 Matches (Sorted by Similarity)</h3>
+                                    </div>
+                                    <div className="divide-y">
+                                        {blastResults.results.slice(0, 20).map((result, idx) => (
+                                            <div key={result.id} className="p-6 hover:bg-gray-50">
+                                                <div className="flex items-start justify-between mb-3">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center space-x-3 mb-2">
+                                                            <span className="text-lg font-bold text-gray-700">#{idx + 1}</span>
+                                                            <h3 className="text-lg font-bold text-gray-900 italic">{result.species}</h3>
+                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                                result.similarity >= 98 ? 'bg-green-100 text-green-700' :
+                                                                result.similarity >= 95 ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-red-100 text-red-700'
+                                                            }`}>
+                                                                {result.similarity}% Identity
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-sm text-gray-600">{result.common_name}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                                                    <div>
+                                                        <p className="text-gray-500">Accession</p>
+                                                        <p className="font-mono font-medium text-blue-600">{result.accession}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-gray-500">Align Length</p>
+                                                        <p className="font-medium">{result.alignmentLength} bp</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-gray-500">Identities</p>
+                                                        <p className="font-medium">{result.identities}/{result.alignmentLength}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-gray-500">Gaps</p>
+                                                        <p className="font-medium">{result.gaps}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-gray-500">Country</p>
+                                                        <p className="font-medium">{result.country}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-3 pt-3 border-t">
+                                                    <div className="flex items-center space-x-2">
+                                                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                                            <div
+                                                                className={`h-2 rounded-full ${
+                                                                    result.similarity >= 98 ? 'bg-green-500' :
+                                                                    result.similarity >= 95 ? 'bg-yellow-500' :
+                                                                    'bg-red-500'
+                                                                }`}
+                                                                style={{ width: `${result.similarity}%` }}
+                                                            />
+                                                        </div>
+                                                        <span className="text-xs text-gray-500 font-medium w-12">{result.similarity}%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ThripsDatabase />, document.getElementById('root'));
+    </script>
+</body>
+</html>
