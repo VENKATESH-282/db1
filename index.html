@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thrips Nucleotide Database with BLAST</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Thrips Nucleotide Database with BLAST — Upload / Submit / Custom Accession</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
@@ -15,18 +15,10 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <div class="bg-green-600 p-2 rounded-lg">
+                            <!-- icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                                 <path d="M2 15c6.667-6 13.333 0 20-6"></path>
                                 <path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"></path>
-                                <path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"></path>
-                                <path d="m17 6-2.5-2.5"></path>
-                                <path d="m14 8-1-1"></path>
-                                <path d="m7 18 2.5 2.5"></path>
-                                <path d="m3.5 14.5.5.5"></path>
-                                <path d="m20 9 .5.5"></path>
-                                <path d="m6.5 12.5 1 1"></path>
-                                <path d="m16.5 10.5 1 1"></path>
-                                <path d="m10 16 1.5 1.5"></path>
                             </svg>
                         </div>
                         <div>
@@ -70,12 +62,11 @@
         </div>
 
         <!-- Main Content -->
-        <div class="max-w-7xl mx-auto px-6 py-6" id="mainContent" style="display: none;">
-            
-            <!-- Search and Filter Bar -->
+        <div class="max-w-7xl mx-auto px-6 py-6" id="mainContent" style="display:none;">
+            <!-- Top controls: Upload / Query selection / Submit -->
             <div class="bg-white rounded-lg shadow-sm border p-4 mb-6">
-                <div class="flex flex-col lg:flex-row gap-4">
-                    <div class="flex-1">
+                <div class="flex flex-col md:flex-row gap-4 items-start">
+                    <div class="flex-1 min-w-0">
                         <div class="relative">
                             <div class="absolute left-3 top-3 w-5 h-5 text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -83,57 +74,113 @@
                                     <path d="m21 21-4.35-4.35"></path>
                                 </svg>
                             </div>
-                            <input type="text" id="searchInput" placeholder="Search by species, accession, gene marker..." 
+                            <input id="searchInput" type="text" placeholder="Search by species, accession, gene marker..." 
                                    class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                         </div>
                         <div class="mt-2 text-xs text-gray-500">
                             <span id="filteredCount">0</span> of <span id="totalCount2">0</span> sequences
                         </div>
                     </div>
-                    <select id="sortSelect" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50">
-                        <option value="species">Sort by Species</option>
-                        <option value="accession">Sort by Accession</option>
-                        <option value="length">Sort by Length</option>
-                    </select>
+
+                    <div class="flex flex-col gap-2">
+                        <select id="sortSelect" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50">
+                            <option value="species">Sort by Species</option>
+                            <option value="accession">Sort by Accession</option>
+                            <option value="length">Sort by Length</option>
+                        </select>
+
+                        <div class="flex gap-2">
+                            <button id="openSubmitBtn" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                                Submit Sequence
+                            </button>
+                            <button id="downloadDbBtn" class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium">
+                                Download DB (JSON)
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Selection Actions -->
-                <div id="selectionBar" class="mt-4 hidden flex flex-wrap items-center justify-between gap-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                    <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-600">
-                            <polyline points="9 11 12 14 22 4"></polyline>
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                        </svg>
-                        <span class="text-sm font-medium text-blue-900">
-                            <span id="selectedCount">0</span> sequence(s) selected
-                        </span>
+                <!-- Upload + Query selector -->
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 border rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">Upload / Paste Query</div>
+                                <div class="text-xs text-gray-500">FASTA or raw sequence (DNA)</div>
+                            </div>
+                            <div id="uploadedStatus" class="text-xs text-gray-500">No upload</div>
+                        </div>
+
+                        <div class="mt-3 flex flex-col md:flex-row gap-2">
+                            <input id="fileInput" type="file" accept=".fa,.fasta,.txt" class="text-sm" />
+                            <button id="pasteBtn" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-100 text-sm">Paste / Paste Modal</button>
+                            <button id="clearUploadBtn" class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">Clear</button>
+                        </div>
+
+                        <div id="pasteArea" class="hidden mt-3">
+                            <textarea id="pastedSeq" rows="4" class="w-full border rounded p-2 font-mono text-sm" placeholder="Paste FASTA or raw sequence here"></textarea>
+                            <div class="mt-2 flex gap-2">
+                                <button id="usePastedAsQuery" class="px-3 py-1 bg-green-600 text-white rounded text-sm">Use as Query</button>
+                                <button id="cancelPaste" class="px-3 py-1 bg-gray-300 rounded text-sm">Cancel</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="viewSelectedSequences()" class="px-3 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 flex items-center space-x-2 text-sm font-medium">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            <span>View</span>
-                        </button>
-                        <button onclick="runBlast()" class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2 text-sm font-medium">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"></path>
-                            </svg>
-                            <span>BLAST</span>
-                        </button>
-                        <button onclick="exportFasta()" class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center space-x-2 text-sm font-medium">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            <span>FASTA</span>
-                        </button>
-                        <button onclick="clearSelection()" class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">
-                            Clear
-                        </button>
+
+                    <div class="bg-gray-50 border rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">Choose Query Source</div>
+                                <div class="text-xs text-gray-500">Select an existing DB sequence or the uploaded query</div>
+                            </div>
+                            <div class="text-xs text-gray-500" id="currentQueryLabel">No query</div>
+                        </div>
+
+                        <div class="mt-3 grid grid-cols-1 gap-2">
+                            <label class="text-xs text-gray-500">Query source:</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="radio" name="querySource" id="query_uploaded" value="uploaded" />
+                                <label for="query_uploaded" class="text-sm">Uploaded / Pasted</label>
+                                <input type="radio" name="querySource" id="query_selected" value="selected" class="ml-4" />
+                                <label for="query_selected" class="text-sm">Selected DB Sequence</label>
+                            </div>
+
+                            <select id="existingQuerySelect" class="mt-2 px-3 py-2 border rounded-lg">
+                                <!-- populated dynamically -->
+                            </select>
+
+                            <div class="mt-2 flex gap-2">
+                                <button id="runBlastBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Run BLAST</button>
+                                <button id="clearQueryBtn" class="px-4 py-2 bg-gray-300 rounded-lg">Clear Query</button>
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Selection Actions -->
+            <div id="selectionBar" class="mb-6 hidden flex flex-wrap items-center justify-between gap-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-600">
+                        <polyline points="9 11 12 14 22 4"></polyline>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-blue-900">
+                        <span id="selectedCount">0</span> sequence(s) selected
+                    </span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="viewSelectedSequences()" class="px-3 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 flex items-center space-x-2 text-sm font-medium">
+                        View
+                    </button>
+                    <button onclick="runBlast()" class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2 text-sm font-medium">
+                        BLAST
+                    </button>
+                    <button onclick="exportFasta()" class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center space-x-2 text-sm font-medium">
+                        FASTA
+                    </button>
+                    <button onclick="clearSelection()" class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">
+                        Clear
+                    </button>
                 </div>
             </div>
 
@@ -156,6 +203,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Common Name</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gene</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Length</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-gray-200">
@@ -165,47 +213,30 @@
             </div>
 
             <!-- Sequence View -->
-            <div id="sequenceView" class="hidden space-y-4">
+            <div id="sequenceView" class="hidden space-y-4 mt-6">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-gray-900">Selected Sequences</h2>
                     <div class="flex gap-2">
-                        <button onclick="runBlast()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"></path>
-                            </svg>
-                            <span>Run BLAST</span>
-                        </button>
-                        <button onclick="backToDatabase()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                            Back to Database
-                        </button>
+                        <button onclick="runBlast()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Run BLAST</button>
+                        <button onclick="backToDatabase()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Back to Database</button>
                     </div>
                 </div>
                 <div id="sequenceCards"></div>
             </div>
 
             <!-- BLAST Results View -->
-            <div id="blastView" class="hidden space-y-4">
+            <div id="blastView" class="hidden space-y-4 mt-6">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900">BLAST Results</h2>
                         <p class="text-sm text-gray-600" id="blastQueryInfo"></p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="exportBlastResults()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            <span>Export</span>
-                        </button>
-                        <button onclick="backFromBlast()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                            Back
-                        </button>
+                        <button onclick="exportBlastResults()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Export</button>
+                        <button onclick="backFromBlast()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Back</button>
                     </div>
                 </div>
 
-                <!-- BLAST Tabs -->
                 <div class="bg-white rounded-lg shadow-sm border">
                     <div class="border-b">
                         <nav class="flex space-x-4 px-6">
@@ -225,12 +256,10 @@
                     </div>
 
                     <div class="p-6">
-                        <!-- Results Table Tab -->
                         <div id="blastTab-results" class="blast-tab-content">
                             <div id="blastResultsContainer"></div>
                         </div>
 
-                        <!-- Plots -->
                         <div id="blastTab-overview" class="blast-tab-content hidden">
                             <div id="overviewPlot" style="width: 100%; height: 500px;"></div>
                         </div>
@@ -246,550 +275,960 @@
         </div>
     </div>
 
-    <script>
-        // Global state
-        let entries = [];
-        let filteredEntries = [];
-        let selectedSequences = [];
-        let blastResults = null;
-        let currentView = 'database';
+    <!-- Submission Modal -->
+    <div id="submitModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Submit New Sequence</h3>
+                <button id="closeSubmit" class="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
 
-        // Load database
-        async function loadDatabase() {
-            try {
-                console.log('Fetching thrips_database.json...');
-                const response = await fetch('./thrips_database.json');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: Failed to load database file.`);
-                }
-                
-                const data = await response.json();
-                console.log(`Loaded ${data.length} sequences`);
-                
-                entries = data.map((entry, index) => ({
-                    id: entry.id || index + 1,
-                    accession: entry.accession || 'N/A',
-                    species: entry.species || 'Unknown species',
-                    common_name: entry.common_name || 'N/A',
-                    gene: entry.gene || 'Unknown',
-                    length: entry.length || 0,
-                    sequence: entry.sequence || '',
-                    collector: entry.collector || 'N/A',
-                    collection_date: entry.collection_date || 'N/A'
-                }));
-                
-                filteredEntries = [...entries];
-                
-                document.getElementById('loadingModal').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                
-                updateCounts();
-                renderTable();
-                
-            } catch (err) {
-                console.error('Error loading data:', err);
-                document.getElementById('loadingModal').style.display = 'none';
-                document.getElementById('errorModal').classList.remove('hidden');
-                document.getElementById('errorText').textContent = err.message;
-            }
+            <form id="submitForm" class="space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input id="sub_species" placeholder="Species (genus species)" class="px-3 py-2 border rounded" required />
+                    <input id="sub_common" placeholder="Common name" class="px-3 py-2 border rounded" />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input id="sub_gene" placeholder="Gene / Marker (e.g., COI)" class="px-3 py-2 border rounded" />
+                    <input id="sub_collector" placeholder="Collector" class="px-3 py-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="text-xs text-gray-500">Collection date</label>
+                    <input id="sub_date" type="date" class="w-full px-3 py-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="text-xs text-gray-500">Sequence (FASTA or raw)</label>
+                    <textarea id="sub_sequence" rows="6" class="w-full border rounded p-2 font-mono" placeholder=">optional_header
+ATG..." required></textarea>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <div class="text-xs text-gray-500" id="accessionPreview">Assigned accession: —</div>
+                    <div class="flex gap-2">
+                        <button type="button" id="generateAccession" class="px-3 py-2 bg-gray-200 rounded">Generate</button>
+                        <button type="submit" class="px-3 py-2 bg-green-600 text-white rounded">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+/* ------------------------
+   Global state and utils
+   ------------------------ */
+let entries = []; // main DB
+let filteredEntries = [];
+let selectedSequences = [];
+let blastResults = null;
+let currentView = 'database';
+let uploadedQuery = null; // {header, sequence, accession?}
+let selectedQueryId = null; // id of DB entry used as query
+let lastAccessionSerial = null; // persisted in localStorage
+
+const DB_STORAGE_KEY = 'thrips_db_v1';
+const SERIAL_KEY = 'thrips_last_serial_v1';
+
+/* ------------------------
+   Helper utilities
+   ------------------------ */
+function show(el) { el.classList.remove('hidden'); el.style.display = ''; }
+function hide(el) { el.classList.add('hidden'); el.style.display = 'none'; }
+function toSeq(s) {
+    // keep only nucleotide letters ACGTURYKMSWBDHVN and dash
+    return s.toUpperCase().replace(/[^ACGTURYKMSWBDHVN\-]/g, '');
+}
+function parseFasta(text) {
+    text = text.trim();
+    if (!text) return null;
+    if (text.startsWith('>')) {
+        const lines = text.split(/\\r?\\n/);
+        const header = lines[0].replace(/^>+/, '').trim();
+        const seq = toSeq(lines.slice(1).join(''));
+        return { header, sequence: seq };
+    } else {
+        const seq = toSeq(text);
+        return { header: '', sequence: seq };
+    }
+}
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+/* ------------------------
+   Accession generation
+   Format: TDBYYYYNNNNNN (year + 6-digit incrementing serial)
+   - Serial increments from last stored serial or scans DB for max.
+   Persisted in localStorage.
+   ------------------------ */
+function loadLastSerial() {
+    const v = localStorage.getItem(SERIAL_KEY);
+    if (v) {
+        lastAccessionSerial = parseInt(v, 10);
+    } else {
+        // attempt to compute from DB
+        lastAccessionSerial = computeMaxSerialFromEntries();
+        localStorage.setItem(SERIAL_KEY, String(lastAccessionSerial || 0));
+    }
+}
+
+function computeMaxSerialFromEntries() {
+    if (!entries || entries.length === 0) return 0;
+    let max = 0;
+    const rx = /^TDB(\\d{4})(\\d{6})$/;
+    for (const e of entries) {
+        if (!e.accession) continue;
+        const m = e.accession.match(rx);
+        if (m) {
+            const serial = parseInt(m[2], 10);
+            if (serial > max) max = serial;
         }
+    }
+    return max;
+}
 
-        // Update counts
-        function updateCounts() {
-            document.getElementById('totalCount').textContent = entries.length.toLocaleString();
-            document.getElementById('totalCount2').textContent = entries.length.toLocaleString();
-            document.getElementById('filteredCount').textContent = filteredEntries.length.toLocaleString();
-            document.getElementById('selectedCount').textContent = selectedSequences.length;
-            
-            if (selectedSequences.length > 0) {
-                document.getElementById('selectionBar').classList.remove('hidden');
-            } else {
-                document.getElementById('selectionBar').classList.add('hidden');
-            }
-        }
+function assignNewAccession() {
+    const now = new Date();
+    const year = now.getFullYear();
+    if (lastAccessionSerial === null) loadLastSerial();
+    lastAccessionSerial = (lastAccessionSerial || 0) + 1;
+    localStorage.setItem(SERIAL_KEY, String(lastAccessionSerial));
+    const serialStr = String(lastAccessionSerial).padStart(6, '0');
+    return `TDB${year}${serialStr}`;
+}
 
-        // Render table
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            
-            filteredEntries.forEach(entry => {
-                const isSelected = selectedSequences.some(s => s.id === entry.id);
-                const row = document.createElement('tr');
-                row.className = `hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`;
-                
-                row.innerHTML = `
-                    <td class="px-6 py-4">
-                        <button onclick="toggleSelection(${entry.id})" class="hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                ${isSelected ? 
-                                    '<polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>' :
-                                    '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>'
-                                }
-                            </svg>
-                        </button>
-                    </td>
-                    <td class="px-6 py-4 text-sm font-mono text-blue-600">${entry.accession}</td>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900 italic">${entry.species}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${entry.common_name}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
-                            ${entry.gene}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">${entry.length.toLocaleString()} bp</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+/* ------------------------
+   NEW: Load all split JSON files from ./data/seq_1.json, seq_2.json, ...
+   ------------------------ */
+async function loadDatabase() {
+  try {
+    document.getElementById('loadingModal').style.display = 'flex';
 
-        // Toggle selection
-        function toggleSelection(id) {
-            const entry = entries.find(e => e.id === id);
-            if (!entry) return;
-            
-            const index = selectedSequences.findIndex(s => s.id === id);
-            if (index >= 0) {
-                selectedSequences.splice(index, 1);
-            } else {
-                selectedSequences.push(entry);
-            }
-            
-            updateCounts();
-            renderTable();
-        }
+    // Detect how many seq_*.json files exist
+    const chunkUrls = [];
+    for (let i = 1; i <= 300; i++) {
+      const url = `./data/seq_${i}.json`;
+      try {
+        const head = await fetch(url, { method: 'HEAD' });
+        if (head.ok) chunkUrls.push(url);
+        else break; // stop at the first missing file
+      } catch {
+        break;
+      }
+    }
 
-        // Select all
-        function selectAll() {
-            if (selectedSequences.length === filteredEntries.length) {
-                selectedSequences = [];
-            } else {
-                selectedSequences = [...filteredEntries];
-            }
-            updateCounts();
-            renderTable();
-        }
+    if (chunkUrls.length === 0) {
+      throw new Error('No seq_*.json files found in the ./data/ folder');
+    }
 
-        // Clear selection
-        function clearSelection() {
-            selectedSequences = [];
-            blastResults = null;
-            updateCounts();
-            renderTable();
-            backToDatabase();
-        }
+    // Load all chunks
+    const allData = [];
+    for (const url of chunkUrls) {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`Failed to load ${url}`);
+      const json = await r.json();
+      allData.push(...json);
+    }
 
-        // Search
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            filteredEntries = entries.filter(entry => 
-                entry.species.toLowerCase().includes(term) ||
-                entry.common_name.toLowerCase().includes(term) ||
-                entry.accession.toLowerCase().includes(term) ||
-                entry.gene.toLowerCase().includes(term)
-            );
-            updateCounts();
-            renderTable();
+    // Normalize exactly like before
+    entries = allData.map((entry, idx) => ({
+      id: idx + 1,
+      accession: entry.accession || `UNKNOWN${idx + 1}`,
+      species: entry.species || 'Unknown species',
+      common_name: entry.common_name || 'N/A',
+      gene: entry.gene || 'Unknown',
+      length: entry.length || (entry.sequence ? toSeq(entry.sequence).length : 0),
+      sequence: entry.sequence ? toSeq(entry.sequence) : '',
+      collector: entry.collector || 'N/A',
+      collection_date: entry.collection_date || 'N/A'
+    }));
+
+    // Ensure unique IDs
+    for (let i = 0; i < entries.length; i++) entries[i].id = i + 1;
+
+    filteredEntries = [...entries];
+    loadLastSerial();
+    updateCounts();
+    renderTable();
+    populateQuerySelect();
+
+    document.getElementById('loadingModal').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  } catch (err) {
+    console.error(err);
+    document.getElementById('loadingModal').style.display = 'none';
+    document.getElementById('errorModal').classList.remove('hidden');
+    document.getElementById('errorText').textContent = err.message || 'Failed to load database';
+  }
+}
+
+function persistDb() {
+    try {
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(entries));
+    } catch (e) {
+        console.warn('Failed to persist DB to localStorage', e);
+    }
+}
+
+/* ------------------------
+   Counting / Rendering
+   ------------------------ */
+function updateCounts() {
+    document.getElementById('totalCount').textContent = entries.length.toLocaleString();
+    document.getElementById('totalCount2').textContent = entries.length.toLocaleString();
+    document.getElementById('filteredCount').textContent = filteredEntries.length.toLocaleString();
+    document.getElementById('selectedCount').textContent = selectedSequences.length;
+
+    if (selectedSequences.length > 0) {
+        document.getElementById('selectionBar').classList.remove('hidden');
+    } else {
+        document.getElementById('selectionBar').classList.add('hidden');
+    }
+}
+
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    filteredEntries.forEach(entry => {
+        const isSelected = selectedSequences.some(s => s.id === entry.id);
+        const isQuery = (selectedQueryId && selectedQueryId === entry.id);
+        const row = document.createElement('tr');
+        row.className = `hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`;
+
+        const actionsHtml = `
+            <div class="flex gap-2">
+                <button onclick="toggleSelection(${entry.id})" class="px-2 py-1 text-sm border rounded ${isSelected ? 'bg-blue-600 text-white' : 'bg-white'}">
+                    ${isSelected ? 'Selected' : 'Select'}
+                </button>
+                <button onclick="setEntryAsQuery(${entry.id})" class="px-2 py-1 text-sm border rounded ${isQuery ? 'bg-green-600 text-white' : 'bg-white'}">
+                    ${isQuery ? 'Query' : 'Use as query'}
+                </button>
+                <button onclick="viewEntry(${entry.id})" class="px-2 py-1 text-sm border rounded bg-white">View</button>
+            </div>
+        `;
+
+        row.innerHTML = `
+            <td class="px-6 py-4">
+                <button onclick="toggleSelection(${entry.id})" class="hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        ${isSelected ? 
+                            '<polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>' :
+                            '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>'
+                        }
+                    </svg>
+                </button>
+            </td>
+            <td class="px-6 py-4 text-sm font-mono text-blue-600">${entry.accession}</td>
+            <td class="px-6 py-4 text-sm font-medium text-gray-900 italic">${entry.species}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">${entry.common_name}</td>
+            <td class="px-6 py-4 text-sm">
+                <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                    ${entry.gene}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">${entry.length.toLocaleString()} bp</td>
+            <td class="px-6 py-4 text-sm text-gray-900">${actionsHtml}</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    populateQuerySelect();
+}
+
+/* ------------------------
+   Selection management
+   ------------------------ */
+function toggleSelection(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const idx = selectedSequences.findIndex(s => s.id === id);
+    if (idx >= 0) selectedSequences.splice(idx, 1);
+    else selectedSequences.push(entry);
+    updateCounts();
+    renderTable();
+}
+
+function selectAll() {
+    if (selectedSequences.length === filteredEntries.length) {
+        selectedSequences = [];
+    } else {
+        selectedSequences = [...filteredEntries];
+    }
+    updateCounts();
+    renderTable();
+}
+
+function clearSelection() {
+    selectedSequences = [];
+    blastResults = null;
+    updateCounts();
+    renderTable();
+    backToDatabase();
+}
+
+/* ------------------------
+   Query handling (uploaded / selected)
+   ------------------------ */
+function setEntryAsQuery(id) {
+    selectedQueryId = id;
+    uploadedQuery = null;
+    document.querySelector('#query_selected').checked = true;
+    updateCurrentQueryLabel();
+    renderTable();
+}
+
+function setUploadedQueryObject(obj) {
+    uploadedQuery = obj; // {header, sequence}
+    selectedQueryId = null;
+    document.querySelector('#query_uploaded').checked = true;
+    updateCurrentQueryLabel();
+}
+
+// populate select dropdown (existingQuerySelect)
+function populateQuerySelect() {
+    const sel = document.getElementById('existingQuerySelect');
+    sel.innerHTML = '';
+    filteredEntries.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.id;
+        opt.textContent = `${e.accession} — ${e.species} (${e.length} bp)`;
+        sel.appendChild(opt);
+    });
+}
+
+function updateCurrentQueryLabel() {
+    const label = document.getElementById('currentQueryLabel');
+    if (uploadedQuery) {
+        label.textContent = `Uploaded: ${uploadedQuery.header || 'pasted'} (${uploadedQuery.sequence.length} bp)`;
+    } else if (selectedQueryId) {
+        const entry = entries.find(e => e.id === selectedQueryId);
+        if (entry) label.textContent = `${entry.accession} — ${entry.species} (${entry.length} bp)`;
+        else label.textContent = 'Selected query missing';
+    } else {
+        label.textContent = 'No query';
+    }
+}
+
+/* ------------------------
+   Viewing one entry card
+   ------------------------ */
+function viewEntry(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    document.getElementById('databaseView').classList.add('hidden');
+    document.getElementById('sequenceView').classList.remove('hidden');
+
+    const container = document.getElementById('sequenceCards');
+    container.innerHTML = '';
+
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-lg shadow-sm border p-6';
+    card.innerHTML = `
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="text-lg font-bold text-gray-700">Accession</span>
+                    <h3 class="text-xl font-bold text-gray-900 italic">${entry.accession}</h3>
+                </div>
+                <p class="text-gray-600">${entry.species} — ${entry.common_name}</p>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">${entry.gene}</span>
+                <button onclick="setEntryAsQuery(${entry.id})" class="px-3 py-1 bg-green-600 text-white rounded">Use as Query</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
+            <div>
+                <div class="text-gray-500 mb-1">Accession</div>
+                <div class="font-mono font-medium text-blue-600">${entry.accession}</div>
+            </div>
+            <div>
+                <div class="text-gray-500 mb-1">Length</div>
+                <div class="font-medium">${entry.length.toLocaleString()} bp</div>
+            </div>
+            <div>
+                <div class="text-gray-500 mb-1">Collection Date</div>
+                <div class="font-medium">${entry.collection_date}</div>
+            </div>
+        </div>
+        <div class="border-t pt-4">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-semibold text-gray-700">Nucleotide Sequence</h4>
+                <div class="flex gap-2">
+                    <button onclick="copySequence('${entry.sequence}')" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md">Copy</button>
+                    <button onclick="downloadFastaSingle(${entry.id})" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md">Download FASTA</button>
+                </div>
+            </div>
+            <div class="bg-gray-900 p-4 rounded-lg overflow-x-auto">
+                <pre class="text-xs font-mono text-green-400 whitespace-pre-wrap break-all">${entry.sequence}</pre>
+            </div>
+        </div>
+    `;
+    container.appendChild(card);
+}
+
+/* ------------------------
+   Copy / download single
+   ------------------------ */
+function copySequence(sequence) {
+    navigator.clipboard.writeText(sequence).then(() => {
+        alert('Sequence copied to clipboard!');
+    }).catch(() => alert('Failed to copy.'));
+}
+
+function downloadFastaSingle(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const fasta = `>${entry.accession} ${entry.species}\\n${entry.sequence}\\n`;
+    downloadBlob(new Blob([fasta], {type:'text/plain'}), `${entry.accession}.fasta`);
+}
+
+/* ------------------------
+   Export FASTA for selected
+   ------------------------ */
+function exportFasta() {
+    if (selectedSequences.length === 0) {
+        alert('No sequences selected');
+        return;
+    }
+    const fasta = selectedSequences.map(seq => `>${seq.accession} ${seq.species}\\n${seq.sequence}`).join('\\n\\n');
+    downloadBlob(new Blob([fasta], {type:'text/plain'}), 'thrips_sequences.fasta');
+}
+
+/* ------------------------
+   BLAST functionality (using your existing naive comparator)
+   - Now accepts query from:
+     - uploadedQuery (if query_uploaded radio selected)
+     - selectedQueryId (if query_selected radio selected)
+     - fallback: first of selectedSequences (old behavior)
+   ------------------------ */
+function runBlast(fromButton=false) {
+    // decide query based on radio buttons
+    const useUploaded = document.getElementById('query_uploaded').checked;
+    const useSelected = document.getElementById('query_selected').checked;
+
+    let queryObj = null;
+    if (useUploaded && uploadedQuery) {
+        queryObj = { accession: uploadedQuery.header || 'UPLOADED_QUERY', species: uploadedQuery.header || 'Uploaded', length: uploadedQuery.sequence.length, sequence: uploadedQuery.sequence };
+    } else if (useSelected && selectedQueryId) {
+        const e = entries.find(x => x.id === Number(selectedQueryId) || x.id === Number(document.getElementById('existingQuerySelect').value));
+        if (e) queryObj = { accession: e.accession, species: e.species, length: e.length, sequence: e.sequence };
+    } else if (selectedSequences.length > 0) {
+        // fallback: first selected sequence
+        const q = selectedSequences[0];
+        queryObj = { accession: q.accession, species: q.species, length: q.length, sequence: q.sequence };
+    }
+
+    if (!queryObj) {
+        alert('Please specify a query: upload/paste a sequence or choose an existing sequence as query (or select sequences).');
+        return;
+    }
+
+    // build subjects: if user selected sequences, use them (excluding query if identical); else compare against entire DB
+    let subjects = [];
+    if (selectedSequences.length > 0) {
+        // compare with selected sequences (excluding the query accession if present)
+        subjects = selectedSequences.filter(s => s.accession !== queryObj.accession);
+    } else {
+        // compare against whole DB except the exact matching accession string
+        subjects = entries.filter(s => s.accession !== queryObj.accession);
+    }
+
+    const results = [];
+    subjects.forEach(subject => {
+        const similarity = calculateSimilarity(queryObj.sequence, subject.sequence);
+        results.push({
+            queryId: queryObj.accession,
+            querySpecies: queryObj.species,
+            queryLength: queryObj.length,
+            subjectId: subject.accession,
+            subjectSpecies: subject.species,
+            subjectLength: subject.length,
+            identity: similarity.identity,
+            coverage: similarity.coverage,
+            alignmentLength: similarity.alignLength,
+            matches: similarity.matches,
+            gaps: similarity.gaps,
+            evalue: similarity.evalue,
+            bitScore: similarity.bitScore
         });
+    });
 
-        // Sort
-        document.getElementById('sortSelect').addEventListener('change', (e) => {
-            const sortBy = e.target.value;
-            filteredEntries.sort((a, b) => {
-                if (sortBy === 'species') return a.species.localeCompare(b.species);
-                if (sortBy === 'accession') return a.accession.localeCompare(b.accession);
-                if (sortBy === 'length') return b.length - a.length;
-                return 0;
-            });
-            renderTable();
-        });
+    results.sort((a,b) => b.identity - a.identity || b.bitScore - a.bitScore);
+    blastResults = { query: queryObj, results };
+    showBlastResults();
+}
 
-        // View selected sequences
-        function viewSelectedSequences() {
-            if (selectedSequences.length === 0) {
-                alert('Please select at least one sequence');
-                return;
-            }
-            
-            document.getElementById('databaseView').classList.add('hidden');
-            document.getElementById('sequenceView').classList.remove('hidden');
-            
-            const container = document.getElementById('sequenceCards');
-            container.innerHTML = '';
-            
-            selectedSequences.forEach((entry, idx) => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-lg shadow-sm border p-6';
-                card.innerHTML = `
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <div class="flex items-center space-x-3 mb-2">
-                                <span class="text-lg font-bold text-gray-700">#${idx + 1}</span>
-                                <h3 class="text-xl font-bold text-gray-900 italic">${entry.species}</h3>
-                            </div>
-                            <p class="text-gray-600">${entry.common_name}</p>
-                        </div>
-                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                            ${entry.gene}
+/* similarity function (keeps your original logic) */
+function calculateSimilarity(seq1, seq2) {
+    seq1 = seq1 || '';
+    seq2 = seq2 || '';
+    const minLen = Math.min(seq1.length, seq2.length);
+    let matches = 0;
+    for (let i = 0; i < minLen; i++) {
+        if (seq1[i] === seq2[i]) matches++;
+    }
+    const identity = minLen === 0 ? 0 : (matches / minLen) * 100;
+    const coverage = seq1.length === 0 ? 0 : (minLen / seq1.length) * 100;
+    const gaps = Math.abs(seq1.length - seq2.length);
+    const bitScore = matches * 2;
+    const evalue = Math.exp(-bitScore / 10);
+    return { identity, coverage, alignLength: minLen, matches, gaps, bitScore, evalue };
+}
+
+/* ------------------------
+   Show BLAST results (render + plot)
+   ------------------------ */
+function showBlastResults() {
+    document.getElementById('databaseView').classList.add('hidden');
+    document.getElementById('sequenceView').classList.add('hidden');
+    document.getElementById('blastView').classList.remove('hidden');
+
+    document.getElementById('blastQueryInfo').textContent =
+        `Query: ${blastResults.query.species} (${blastResults.query.length.toLocaleString()} bp) — Accession: ${blastResults.query.accession}`;
+
+    const container = document.getElementById('blastResultsContainer');
+    container.innerHTML = '';
+
+    if (!blastResults.results || blastResults.results.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">No matches found</div>';
+        return;
+    }
+
+    blastResults.results.forEach((result, idx) => {
+        const card = document.createElement('div');
+        card.className = 'p-6 hover:bg-gray-50 border-b';
+
+        const identityColor = result.identity >= 98 ? 'bg-green-100 text-green-700' :
+                                result.identity >= 95 ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-red-100 text-red-700';
+
+        card.innerHTML = `
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="text-lg font-bold text-gray-700">#${idx + 1}</span>
+                        <h3 class="text-lg font-bold text-gray-900 italic">${result.subjectSpecies}</h3>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${identityColor}">
+                            ${result.identity.toFixed(2)}% Identity
                         </span>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
-                        <div>
-                            <div class="text-gray-500 mb-1">Accession</div>
-                            <div class="font-mono font-medium text-blue-600">${entry.accession}</div>
-                        </div>
-                        <div>
-                            <div class="text-gray-500 mb-1">Length</div>
-                            <div class="font-medium">${entry.length.toLocaleString()} bp</div>
-                        </div>
-                        <div>
-                            <div class="text-gray-500 mb-1">Collection Date</div>
-                            <div class="font-medium">${entry.collection_date}</div>
-                        </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Accession</p>
+                    <p class="font-mono font-medium text-blue-600">${result.subjectId}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Align Length</p>
+                    <p class="font-medium">${result.alignmentLength.toLocaleString()} bp</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Identities</p>
+                    <p class="font-medium">${result.matches}/${result.alignmentLength}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Gaps</p>
+                    <p class="font-medium">${result.gaps}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">E-value</p>
+                    <p class="font-medium">${result.evalue.toExponential(2)}</p>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-t">
+                <div class="flex items-center space-x-2">
+                    <div class="flex-1 bg-gray-200 rounded-full h-2">
+                        <div class="${result.identity >= 98 ? 'bg-green-500' : result.identity >= 95 ? 'bg-yellow-500' : 'bg-red-500'} h-2 rounded-full" style="width: ${result.identity}%"></div>
                     </div>
-                    <div class="border-t pt-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-sm font-semibold text-gray-700">Nucleotide Sequence</h4>
-                            <button onclick="copySequence('${entry.sequence}')" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md">
-                                Copy
-                            </button>
-                        </div>
-                        <div class="bg-gray-900 p-4 rounded-lg overflow-x-auto">
-                            <pre class="text-xs font-mono text-green-400 whitespace-pre-wrap break-all">${entry.sequence}</pre>
-                        </div>
+                    <span class="text-xs text-gray-500 font-medium w-12">${result.identity.toFixed(1)}%</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    plotAlignmentOverview();
+    plotIdentityDistribution();
+    plotEvalueDistribution();
+}
+
+/* ------------------------
+   BLAST plots (same as before)
+   ------------------------ */
+function plotAlignmentOverview() {
+    if (!blastResults || blastResults.results.length === 0) return;
+
+    const traces = [];
+    const yLabels = [];
+
+    traces.push({
+        x: [blastResults.query.length],
+        y: [0],
+        type: 'bar',
+        orientation: 'h',
+        name: 'Query',
+        marker: { color: 'lightgray' },
+        hoverinfo: 'x'
+    });
+
+    yLabels.push(blastResults.query.accession);
+
+    blastResults.results.slice(0, 10).forEach((hit, idx) => {
+        const color = hit.identity >= 98 ? 'green' : hit.identity >= 95 ? 'gold' : 'red';
+        traces.push({
+            x: [hit.alignmentLength],
+            y: [idx + 1],
+            type: 'bar',
+            orientation: 'h',
+            name: hit.subjectId.substring(0, 20),
+            marker: { color: color, opacity: 0.7 },
+            showlegend: false,
+            hovertemplate: `${hit.subjectSpecies}<br>Identity: ${hit.identity.toFixed(1)}%<br>Length: ${hit.alignmentLength}<extra></extra>`
+        });
+        yLabels.push(hit.subjectId);
+    });
+
+    const layout = {
+        title: 'Alignment Coverage Overview',
+        xaxis: { title: 'Position (bp)' },
+        yaxis: {
+            tickmode: 'array',
+            tickvals: Array.from({length: yLabels.length}, (_, i) => i),
+            ticktext: yLabels.map(l => l.substring(0, 30))
+        },
+        barmode: 'overlay',
+        height: Math.max(400, yLabels.length * 50),
+        margin: { l: 150 }
+    };
+
+    Plotly.newPlot('overviewPlot', traces, layout, {responsive: true});
+}
+
+function plotIdentityDistribution() {
+    if (!blastResults || blastResults.results.length === 0) return;
+    const bins = [0, 70, 80, 90, 95, 98, 100];
+    const counts = new Array(bins.length - 1).fill(0);
+    const labels = ['<70%', '70-80%', '80-90%', '90-95%', '95-98%', '98-100%'];
+    const colors = ['red', 'orange', 'gold', 'lightgreen', 'green', 'darkgreen'];
+    blastResults.results.forEach(result => {
+        for (let i = 0; i < bins.length - 1; i++) {
+            if (result.identity >= bins[i] && result.identity < bins[i+1]) {
+                counts[i]++;
+                break;
+            }
+        }
+    });
+    const trace = { x: labels, y: counts, type: 'bar', marker: { color: colors } };
+    const layout = { title: 'Identity Distribution', xaxis: { title: 'Identity Range' }, yaxis: { title: 'Number of Hits' }, height: 400 };
+    Plotly.newPlot('identityPlot', [trace], layout, {responsive: true});
+}
+
+function plotEvalueDistribution() {
+    if (!blastResults || blastResults.results.length === 0) return;
+    const evalues = blastResults.results.map(r => r.evalue > 0 ? Math.log10(r.evalue) : -180);
+    const trace = { x: evalues, type: 'histogram', nbinsx: 30, marker: { color: 'steelblue' } };
+    const layout = { title: 'E-value Distribution', xaxis: { title: 'log10(E-value)' }, yaxis: { title: 'Number of Hits' }, height: 400 };
+    Plotly.newPlot('evaluePlot', [trace], layout, {responsive: true});
+}
+
+/* ------------------------
+   Export BLAST results as CSV
+   ------------------------ */
+function exportBlastResults() {
+    if (!blastResults || blastResults.results.length === 0) {
+        alert('No results to export');
+        return;
+    }
+    const csv = ['Query,Query_Species,Subject,Subject_Species,Identity_%,Coverage_%,E-value,Bit_Score,Align_Length,Gaps,Matches'];
+    blastResults.results.forEach(r => {
+        csv.push(`${r.queryId},${r.querySpecies},${r.subjectId},${r.subjectSpecies},${r.identity.toFixed(2)},${r.coverage.toFixed(2)},${r.evalue.toExponential(2)},${r.bitScore.toFixed(1)},${r.alignmentLength},${r.gaps},${r.matches}`);
+    });
+    downloadBlob(new Blob([csv.join('\\n')], {type:'text/csv'}), 'blast_results.csv');
+}
+
+/* ------------------------
+   UI: Back navigation
+   ------------------------ */
+function backToDatabase() {
+    document.getElementById('sequenceView').classList.add('hidden');
+    document.getElementById('blastView').classList.add('hidden');
+    document.getElementById('databaseView').classList.remove('hidden');
+}
+
+function backFromBlast() {
+    document.getElementById('blastView').classList.add('hidden');
+    document.getElementById('sequenceView').classList.remove('hidden');
+}
+
+/* ------------------------
+   Upload / Paste handlers
+   ------------------------ */
+document.getElementById('fileInput').addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        const text = reader.result;
+        const parsed = parseFasta(text);
+        if (!parsed || !parsed.sequence) {
+            alert('Failed to parse sequence from file.');
+            return;
+        }
+        setUploadedQueryObject(parsed);
+        document.getElementById('uploadedStatus').textContent = `Uploaded (${parsed.sequence.length} bp)`;
+        updateCurrentQueryLabel();
+    };
+    reader.readAsText(f);
+});
+
+document.getElementById('pasteBtn').addEventListener('click', () => {
+    document.getElementById('pasteArea').classList.remove('hidden');
+    document.getElementById('pastedSeq').focus();
+});
+
+document.getElementById('cancelPaste').addEventListener('click', () => {
+    document.getElementById('pasteArea').classList.add('hidden');
+    document.getElementById('pastedSeq').value = '';
+});
+
+document.getElementById('usePastedAsQuery').addEventListener('click', () => {
+    const txt = document.getElementById('pastedSeq').value;
+    const parsed = parseFasta(txt);
+    if (!parsed || !parsed.sequence) {
+        alert('No valid sequence found in the pasted text.');
+        return;
+    }
+    setUploadedQueryObject(parsed);
+    document.getElementById('uploadedStatus').textContent = `Uploaded (${parsed.sequence.length} bp)`;
+    document.getElementById('pasteArea').classList.add('hidden');
+    document.getElementById('pastedSeq').value = '';
+    updateCurrentQueryLabel();
+});
+
+document.getElementById('clearUploadBtn').addEventListener('click', () => {
+    uploadedQuery = null; selectedQueryId = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('uploadedStatus').textContent = 'No upload';
+    document.getElementById('query_uploaded').checked = false;
+    document.getElementById('query_selected').checked = false;
+    updateCurrentQueryLabel();
+});
+
+/* ------------------------
+   ExistingQuerySelect change
+   ------------------------ */
+document.getElementById('existingQuerySelect').addEventListener('change', (e) => {
+    const val = Number(e.target.value);
+    selectedQueryId = val;
+    document.getElementById('query_selected').checked = true;
+    updateCurrentQueryLabel();
+});
+
+/* ------------------------
+   Search + Sort
+   ------------------------ */
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    filteredEntries = entries.filter(entry =>
+        (entry.species && entry.species.toLowerCase().includes(term)) ||
+        (entry.common_name && entry.common_name.toLowerCase().includes(term)) ||
+        (entry.accession && entry.accession.toLowerCase().includes(term)) ||
+        (entry.gene && entry.gene.toLowerCase().includes(term))
+    );
+    updateCounts();
+    renderTable();
+});
+
+document.getElementById('sortSelect').addEventListener('change', (e) => {
+    const sortBy = e.target.value;
+    filteredEntries.sort((a,b) => {
+        if (sortBy === 'species') return a.species.localeCompare(b.species);
+        if (sortBy === 'accession') return a.accession.localeCompare(b.accession);
+        if (sortBy === 'length') return b.length - a.length;
+        return 0;
+    });
+    renderTable();
+});
+
+/* ------------------------
+   Run BLAST button (top)
+   ------------------------ */
+document.getElementById('runBlastBtn').addEventListener('click', () => runBlast(true));
+document.getElementById('clearQueryBtn').addEventListener('click', () => {
+    uploadedQuery = null; selectedQueryId = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('uploadedStatus').textContent = 'No upload';
+    document.getElementById('query_uploaded').checked = false;
+    document.getElementById('query_selected').checked = false;
+    updateCurrentQueryLabel();
+});
+
+/* ------------------------
+   Submission modal handlers
+   ------------------------ */
+document.getElementById('openSubmitBtn').addEventListener('click', () => {
+    document.getElementById('submitModal').classList.remove('hidden');
+    document.getElementById('accessionPreview').textContent = 'Assigned accession: —';
+});
+document.getElementById('closeSubmit').addEventListener('click', () => {
+    document.getElementById('submitModal').classList.add('hidden');
+});
+
+document.getElementById('generateAccession').addEventListener('click', () => {
+    const acc = assignNewAccession();
+    document.getElementById('accessionPreview').textContent = `Assigned accession: ${acc}`;
+});
+
+document.getElementById('submitForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    // gather
+    const species = document.getElementById('sub_species').value.trim() || 'Unknown species';
+    const common = document.getElementById('sub_common').value.trim() || 'N/A';
+    const gene = document.getElementById('sub_gene').value.trim() || 'Unknown';
+    const collector = document.getElementById('sub_collector').value.trim() || 'N/A';
+    const date = document.getElementById('sub_date').value || 'N/A';
+    const rawseq = document.getElementById('sub_sequence').value.trim();
+    if (!rawseq) {
+        alert('Please paste a sequence.');
+        return;
+    }
+    const parsed = parseFasta(rawseq);
+    if (!parsed || !parsed.sequence || parsed.sequence.length < 10) {
+        if (!confirm('Sequence looks very short or invalid. Continue?')) return;
+    }
+    // auto accession
+    const accession = assignNewAccession();
+    const newEntry = {
+        id: entries.length + 1,
+        accession,
+        species,
+        common_name: common,
+        gene,
+        length: parsed.sequence.length,
+        sequence: parsed.sequence,
+        collector,
+        collection_date: date
+    };
+    entries.push(newEntry);
+    // persist
+    persistDb();
+    updateCounts();
+    filteredEntries = [...entries];
+    renderTable();
+    populateQuerySelect();
+
+    document.getElementById('submitModal').classList.add('hidden');
+    // clear form
+    document.getElementById('submitForm').reset();
+    alert(`Sequence submitted and assigned accession ${accession}`);
+});
+
+/* ------------------------
+   Download DB JSON
+   ------------------------ */
+document.getElementById('downloadDbBtn').addEventListener('click', () => {
+    const body = JSON.stringify(entries, null, 2);
+    downloadBlob(new Blob([body], {type:'application/json'}), 'thrips_database_updated.json');
+});
+
+/* ------------------------
+   Download/clear DB in localStorage (for convenience)
+   ------------------------ */
+// optional functions — not shown in UI: clear persisted DB
+function clearPersistedDb() {
+    localStorage.removeItem(DB_STORAGE_KEY);
+    localStorage.removeItem(SERIAL_KEY);
+    alert('Local DB cleared. Reload to re-load initial dataset if available.');
+}
+
+/* ------------------------
+   Initializer
+   ------------------------ */
+window.addEventListener('DOMContentLoaded', () => {
+    // wire up some remaining handlers
+    document.getElementById('pasteBtn').addEventListener('click', () => {
+        document.getElementById('pasteArea').classList.toggle('hidden');
+    });
+    document.getElementById('pastedSeq').addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+            document.getElementById('usePastedAsQuery').click();
+        }
+    });
+    // click-run blast in selection bar uses runBlast
+    loadDatabase();
+});
+
+/* ------------------------
+   Utility: view selected sequences (reused)
+   ------------------------ */
+function viewSelectedSequences() {
+    if (selectedSequences.length === 0) {
+        alert('Please select at least one sequence');
+        return;
+    }
+    document.getElementById('databaseView').classList.add('hidden');
+    document.getElementById('sequenceView').classList.remove('hidden');
+
+    const container = document.getElementById('sequenceCards');
+    container.innerHTML = '';
+
+    selectedSequences.forEach((entry, idx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-sm border p-6 mb-4';
+        card.innerHTML = `
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="text-lg font-bold text-gray-700">#${idx + 1}</span>
+                        <h3 class="text-xl font-bold text-gray-900 italic">${entry.species}</h3>
                     </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function backToDatabase() {
-            document.getElementById('sequenceView').classList.add('hidden');
-            document.getElementById('blastView').classList.add('hidden');
-            document.getElementById('databaseView').classList.remove('hidden');
-        }
-
-        function copySequence(sequence) {
-            navigator.clipboard.writeText(sequence);
-            alert('Sequence copied to clipboard!');
-        }
-
-        // Export FASTA
-        function exportFasta() {
-            if (selectedSequences.length === 0) {
-                alert('No sequences selected');
-                return;
-            }
-            
-            const fasta = selectedSequences.map(seq => 
-                `>${seq.accession} ${seq.species}\n${seq.sequence}`
-            ).join('\n\n');
-            
-            const blob = new Blob([fasta], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'thrips_sequences.fasta';
-            a.click();
-        }
-
-        // Run BLAST
-        function runBlast() {
-            if (selectedSequences.length === 0) {
-                alert('Please select sequences to run BLAST');
-                return;
-            }
-            
-            const query = selectedSequences[0];
-            const results = [];
-            
-            // Compare query against all selected sequences (except itself)
-            selectedSequences.forEach(subject => {
-                if (query.id === subject.id) return;
-                
-                const similarity = calculateSimilarity(query.sequence, subject.sequence);
-                results.push({
-                    queryId: query.accession,
-                    querySpecies: query.species,
-                    queryLength: query.length,
-                    subjectId: subject.accession,
-                    subjectSpecies: subject.species,
-                    subjectLength: subject.length,
-                    identity: similarity.identity,
-                    coverage: similarity.coverage,
-                    alignmentLength: similarity.alignLength,
-                    matches: similarity.matches,
-                    gaps: similarity.gaps,
-                    evalue: similarity.evalue,
-                    bitScore: similarity.bitScore
-                });
-            });
-            
-            results.sort((a, b) => b.identity - a.identity);
-            blastResults = { query, results };
-            
-            showBlastResults();
-        }
-
-        // Calculate similarity
-        function calculateSimilarity(seq1, seq2) {
-            const minLen = Math.min(seq1.length, seq2.length);
-            let matches = 0;
-            
-            for (let i = 0; i < minLen; i++) {
-                if (seq1[i] === seq2[i]) matches++;
-            }
-            
-            const identity = (matches / minLen) * 100;
-            const coverage = (minLen / seq1.length) * 100;
-            const gaps = Math.abs(seq1.length - seq2.length);
-            const bitScore = matches * 2;
-            const evalue = Math.exp(-bitScore / 10);
-            
-            return { identity, coverage, alignLength: minLen, matches, gaps, bitScore, evalue };
-        }
-
-        // Show BLAST results
-        function showBlastResults() {
-            document.getElementById('databaseView').classList.add('hidden');
-            document.getElementById('sequenceView').classList.add('hidden');
-            document.getElementById('blastView').classList.remove('hidden');
-            
-            document.getElementById('blastQueryInfo').textContent = 
-                `Query: ${blastResults.query.species} (${blastResults.query.length.toLocaleString()} bp)`;
-            
-            const container = document.getElementById('blastResultsContainer');
-            container.innerHTML = '';
-            
-            if (blastResults.results.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-500 py-8">No matches found</div>';
-                return;
-            }
-            
-            blastResults.results.forEach((result, idx) => {
-                const card = document.createElement('div');
-                card.className = 'p-6 hover:bg-gray-50 border-b';
-                
-                const identityColor = result.identity >= 98 ? 'bg-green-100 text-green-700' :
-                                     result.identity >= 95 ? 'bg-yellow-100 text-yellow-700' :
-                                     'bg-red-100 text-red-700';
-                
-                card.innerHTML = `
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-3 mb-2">
-                                <span class="text-lg font-bold text-gray-700">#${idx + 1}</span>
-                                <h3 class="text-lg font-bold text-gray-900 italic">${result.subjectSpecies}</h3>
-                                <span class="px-3 py-1 rounded-full text-xs font-medium ${identityColor}">
-                                    ${result.identity.toFixed(2)}% Identity
-                                </span>
-                            </div>
-                        </div>
+                    <p class="text-gray-600">${entry.common_name}</p>
+                </div>
+                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                    ${entry.gene}
+                </span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
+                <div>
+                    <div class="text-gray-500 mb-1">Accession</div>
+                    <div class="font-mono font-medium text-blue-600">${entry.accession}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 mb-1">Length</div>
+                    <div class="font-medium">${entry.length.toLocaleString()} bp</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 mb-1">Collection Date</div>
+                    <div class="font-medium">${entry.collection_date}</div>
+                </div>
+            </div>
+            <div class="border-t pt-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-sm font-semibold text-gray-700">Nucleotide Sequence</h4>
+                    <div class="flex gap-2">
+                        <button onclick="copySequence('${entry.sequence}')" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md">Copy</button>
+                        <button onclick="downloadFastaSingle(${entry.id})" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md">Download FASTA</button>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-500">Accession</p>
-                            <p class="font-mono font-medium text-blue-600">${result.subjectId}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Align Length</p>
-                            <p class="font-medium">${result.alignmentLength.toLocaleString()} bp</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Identities</p>
-                            <p class="font-medium">${result.matches}/${result.alignmentLength}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Gaps</p>
-                            <p class="font-medium">${result.gaps}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">E-value</p>
-                            <p class="font-medium">${result.evalue.toExponential(2)}</p>
-                        </div>
-                    </div>
-                    <div class="mt-3 pt-3 border-t">
-                        <div class="flex items-center space-x-2">
-                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                <div class="${result.identity >= 98 ? 'bg-green-500' : result.identity >= 95 ? 'bg-yellow-500' : 'bg-red-500'} h-2 rounded-full" 
-                                     style="width: ${result.identity}%"></div>
-                            </div>
-                            <span class="text-xs text-gray-500 font-medium w-12">${result.identity.toFixed(1)}%</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            
-            // Generate plots
-            plotAlignmentOverview();
-            plotIdentityDistribution();
-            plotEvalueDistribution();
-        }
-
-        // Switch BLAST tabs
-        function switchBlastTab(tabName) {
-            document.querySelectorAll('.blast-tab').forEach(btn => {
-                btn.classList.remove('active', 'border-green-600', 'text-green-600');
-                btn.classList.add('border-transparent', 'text-gray-500');
-            });
-            
-            document.querySelectorAll('.blast-tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            
-            event.target.classList.add('active', 'border-green-600', 'text-green-600');
-            event.target.classList.remove('border-transparent', 'text-gray-500');
-            
-            document.getElementById(`blastTab-${tabName}`).classList.remove('hidden');
-        }
-
-        // Plot alignment overview
-        function plotAlignmentOverview() {
-            if (!blastResults || blastResults.results.length === 0) return;
-            
-            const traces = [];
-            const yLabels = [];
-            
-            // Query bar
-            traces.push({
-                x: [blastResults.query.length],
-                y: [0],
-                type: 'bar',
-                orientation: 'h',
-                name: 'Query',
-                marker: { color: 'lightgray' },
-                hoverinfo: 'x'
-            });
-            
-            yLabels.push(blastResults.query.accession);
-            
-            // Top 10 hits
-            blastResults.results.slice(0, 10).forEach((hit, idx) => {
-                const color = hit.identity >= 98 ? 'green' : 
-                             hit.identity >= 95 ? 'gold' : 'red';
-                
-                traces.push({
-                    x: [hit.alignmentLength],
-                    y: [idx + 1],
-                    type: 'bar',
-                    orientation: 'h',
-                    name: hit.subjectId.substring(0, 20),
-                    marker: { color: color, opacity: 0.7 },
-                    showlegend: false,
-                    hovertemplate: `${hit.subjectSpecies}<br>Identity: ${hit.identity.toFixed(1)}%<br>Length: ${hit.alignmentLength}<extra></extra>`
-                });
-                
-                yLabels.push(hit.subjectId);
-            });
-            
-            const layout = {
-                title: 'Alignment Coverage Overview',
-                xaxis: { title: 'Position (bp)' },
-                yaxis: { 
-                    tickmode: 'array',
-                    tickvals: Array.from({length: yLabels.length}, (_, i) => i),
-                    ticktext: yLabels.map(l => l.substring(0, 30))
-                },
-                barmode: 'overlay',
-                height: Math.max(400, yLabels.length * 50),
-                margin: { l: 150 }
-            };
-            
-            Plotly.newPlot('overviewPlot', traces, layout, {responsive: true});
-        }
-
-        // Plot identity distribution
-        function plotIdentityDistribution() {
-            if (!blastResults || blastResults.results.length === 0) return;
-            
-            const bins = [0, 70, 80, 90, 95, 98, 100];
-            const counts = new Array(bins.length - 1).fill(0);
-            const labels = ['<70%', '70-80%', '80-90%', '90-95%', '95-98%', '98-100%'];
-            const colors = ['red', 'orange', 'gold', 'lightgreen', 'green', 'darkgreen'];
-            
-            blastResults.results.forEach(result => {
-                for (let i = 0; i < bins.length - 1; i++) {
-                    if (result.identity >= bins[i] && result.identity < bins[i + 1]) {
-                        counts[i]++;
-                        break;
-                    }
-                }
-            });
-            
-            const trace = {
-                x: labels,
-                y: counts,
-                type: 'bar',
-                marker: { color: colors }
-            };
-            
-            const layout = {
-                title: 'Identity Distribution',
-                xaxis: { title: 'Identity Range' },
-                yaxis: { title: 'Number of Hits' },
-                height: 400
-            };
-            
-            Plotly.newPlot('identityPlot', [trace], layout, {responsive: true});
-        }
-
-        // Plot E-value distribution
-        function plotEvalueDistribution() {
-            if (!blastResults || blastResults.results.length === 0) return;
-            
-            const evalues = blastResults.results.map(r => 
-                r.evalue > 0 ? Math.log10(r.evalue) : -180
-            );
-            
-            const trace = {
-                x: evalues,
-                type: 'histogram',
-                nbinsx: 30,
-                marker: { color: 'steelblue' }
-            };
-            
-            const layout = {
-                title: 'E-value Distribution',
-                xaxis: { title: 'log10(E-value)' },
-                yaxis: { title: 'Number of Hits' },
-                height: 400
-            };
-            
-            Plotly.newPlot('evaluePlot', [trace], layout, {responsive: true});
-        }
-
-        // Export BLAST results
-        function exportBlastResults() {
-            if (!blastResults || blastResults.results.length === 0) {
-                alert('No results to export');
-                return;
-            }
-            
-            const csv = [
-                'Query,Query_Species,Subject,Subject_Species,Identity_%,Coverage_%,E-value,Bit_Score,Align_Length,Gaps,Matches'
-            ];
-            
-            blastResults.results.forEach(r => {
-                csv.push(`${r.queryId},${r.querySpecies},${r.subjectId},${r.subjectSpecies},${r.identity.toFixed(2)},${r.coverage.toFixed(2)},${r.evalue.toExponential(2)},${r.bitScore.toFixed(1)},${r.alignmentLength},${r.gaps},${r.matches}`);
-            });
-            
-            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'blast_results.csv';
-            a.click();
-        }
-
-        function backFromBlast() {
-            document.getElementById('blastView').classList.add('hidden');
-            document.getElementById('sequenceView').classList.remove('hidden');
-        }
-
-        // Initialize
-        window.addEventListener('DOMContentLoaded', loadDatabase);
-    </script>
+                </div>
+                <div class="bg-gray-900 p-4 rounded-lg overflow-x-auto">
+                    <pre class="text-xs font-mono text-green-400 whitespace-pre-wrap break-all">${entry.sequence}</pre>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+</script>
 </body>
 </html>
